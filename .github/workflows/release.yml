@@ -21,8 +21,8 @@ jobs:
       - name: Upload binary
         uses: actions/upload-artifact@v4
         with:
-          name: cppfront
-          path: cppfront-windows.exe
+          name: cppfront-windows.exe
+          path: cppfront.exe
           overwrite: true
 
   build-unix-like:
@@ -56,15 +56,15 @@ jobs:
       if: startsWith(matrix.runs-on, 'ubuntu') && startsWith(matrix.compiler, 'clang')
       uses: actions/upload-artifact@v4
       with:
-        name: cppfront
-        path: cppfront-linux
+        name: cppfront-linux
+        path: cppfront
         overwrite: true
     - name: Upload binary (macos)
       if: startsWith(matrix.runs-on, 'macos') && startsWith(matrix.compiler, 'clang')
       uses: actions/upload-artifact@v4
       with:
-        name: cppfront
-        path: cppfront-macos
+        name: cppfront-macos
+        path: cppfront
         overwrite: true
         
   release:
