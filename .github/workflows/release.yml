@@ -95,7 +95,9 @@ jobs:
           path: ./binaries/macos
 
       - name: Create Release
-      - uses: ncipollo/release-action@v1
+        uses: ncipollo/release-action@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           tag: ${{ env.TAG }}
           name: ${{ env.TAG }}
@@ -104,19 +106,4 @@ jobs:
             Release for ${{ env.TAG }} (from ${{ github.sha }})
           replacesArtifacts: true
           allowUpdates: true
-      - name: Create Release
-        uses: actions/create-release@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          tag_name: ${{ env.TAG }}
-          release_name: ${{ env.TAG }}
-          body: |
-            Release for ${{ env.TAG }} (from ${{ github.sha }})
-          draft: false
-          prerelease: false
-          files: |
-            ./binaries/windows/cppfront-windows.exe
-            ./binaries/linux/cppfront-linux
-            ./binaries/macos/cppfront-macos
 
