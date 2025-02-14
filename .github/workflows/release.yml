@@ -79,21 +79,10 @@ jobs:
         run: |
           TAG=$(git tag -l "v*" --sort=-creatordate | head -n 1)
           echo "TAG=$TAG" >> $GITHUB_ENV
-      - name: Download binaries (Windows)
+      - name: Download binaries
         uses: actions/download-artifact@v4
         with:
-          name: cppfront-windows
-          path: ./binaries/windows
-      - name: Download binaries (Linux)
-        uses: actions/download-artifact@v4
-        with:
-          name: cppfront-linux
-          path: ./binaries/linux
-      - name: Download binaries (MacOS)
-        uses: actions/download-artifact@v4
-        with:
-          name: cppfront-macos
-          path: ./binaries/macos
+          path: ./binaries
 
       - name: Create Release
         uses: ncipollo/release-action@v1
@@ -102,7 +91,7 @@ jobs:
         with:
           tag: ${{ env.TAG }}
           name: ${{ env.TAG }}
-          artifacts: "./binaries/windows/*,./binaries/linux/*,./binaries/macos/*"
+          artifacts: "./binaries/*"
           body: |
             Release for ${{ env.TAG }} (from ${{ github.sha }})
           replacesArtifacts: true
