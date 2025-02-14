@@ -19,10 +19,11 @@ jobs:
       - name: Build
         run: cl.exe source/cppfront.cpp -std:c++latest -MD -EHsc -experimental:module -W4 -WX
       - name: Upload binary
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: cppfront
           path: cppfront-windows.exe
+          overwrite: true
 
   build-unix-like:
     strategy:
@@ -83,15 +84,17 @@ jobs:
         path: cppfront-linux
     - name: Upload binary (macos)
       if: startsWith(matrix.runs-on, 'macos') && (matrix.compiler == 'clang++-14')
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: cppfront
         path: cppfront-macos
-
-
+        overwrite: true
+        
   release:
     needs: [build-windows, build-unix-like]
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
     steps:
       - uses: actions/checkout@v4
       - name: Get latest tag
@@ -100,20 +103,31 @@ jobs:
           TAG=$(git tag -l "v*" --sort=-creatordate | head -n 1)
           echo "TAG=$TAG" >> $GITHUB_ENV
       - name: Download binaries (Windows)
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: cppfront-windows
           path: ./binaries/windows
       - name: Download binaries (Linux)
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: cppfront-linux
           path: ./binaries/linux
       - name: Download binaries (MacOS)
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: cppfront-macos
           path: ./binaries/macos
+
+      - name: Create Release
+      - uses: ncipollo/release-action@v1
+        with:
+          tag: ${{ env.TAG }}
+          name: ${{ env.TAG }}
+          artifacts: "./binaries/windows/*,./binaries/linux/*,./binaries/macos/*"
+          body: |
+            Release for ${{ env.TAG }} (from ${{ github.sha }})
+          replacesArtifacts: true
+          allowUpdates: true
       - name: Create Release
         uses: actions/create-release@v1
         env:
@@ -122,7 +136,7 @@ jobs:
           tag_name: ${{ env.TAG }}
           release_name: ${{ env.TAG }}
           body: |
-            Release for commit ${{ github.sha }}
+            Release for ${{ env.TAG }} (from ${{ github.sha }})
           draft: false
           prerelease: false
           files: |
